@@ -1,0 +1,173 @@
+openapi: 3.0.3
+info:
+  title: Keycloak QR Login API
+  version: 0.1.0
+servers:
+  - url: /realms/{realm}/qrlogin/endpoint
+    variables:
+      realm:
+        default: master
+        description: Keycloak realm name
+
+components:
+  schemas:
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: 错误信息
+      example:
+        error: "Invalid request body"
+
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, SCANNED, CONFIRMED, EXPIRED]
+        url:
+          type: string
+          description: 确认后的回调URL
+
+    ScanRequest:
+      type: object
+      required: [kc_session, qr_session, timestamp, sign, token]
+      properties:
+        kc_session:
+          type: string
+          description: Keycloak会话ID
+        qr_session:
+          type: string
+          description: QR会话ID
+        timestamp:
+          type: integer
+          description: 时间戳（秒）
+        sign:
+          type: string
+          description: 请求签名
+        token:
+          type: string
+          description: JWT Token
+
+    ConfirmRequest:
+      type: object
+      required: [kc_session, qr_session, timestamp, sign, token]
+      properties:
+        kc_session:
+          type: string
+          description: Keycloak会话ID
+        qr_session:
+          type: string
+          description: QR会话ID
+        timestamp:
+          type: integer
+          description: 时间戳（秒）
+        sign:
+          type: string
+          description: 请求签名
+        token:
+          type: string
+          description: JWT Token
+
+    ConfirmResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+        error:
+          type: string
+          description: 错误信息
+
+paths:
+  /qr/scan:
+    post:
+      summary: 扫描二维码
+      description: 用户使用App扫描二维码后调用此接口
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanRequest'
+      responses:
+        '200':
+          description: 扫描成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  error:
+                    type: string
+        '400':
+          description: 请求验证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /qr/confirm:
+    post:
+      summary: 确认登录
+      description: 用户在App上确认登录后调用此接口
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmRequest'
+      responses:
+        '200':
+          description: 确认成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmResponse'
+        '400':
+          description: 请求验证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /qr/status:
+    get:
+      summary: 查询二维码状态
+      description: 前端轮询查询二维码扫描和确认状态
+      parameters:
+        - name: kc_session
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Keycloak会话ID
+        - name: qr_session
+          in: query
+          required: true
+          schema:
+            type: string
+          description: QR会话ID
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: 时间戳（秒）
+      responses:
+        '200':
+          description: 返回二维码状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '400':
+          description: 请求参数错误
+        '403':
+          description: 会话ID不匹配
+        '404':
+          description: 会话不存在或已过期
