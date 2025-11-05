@@ -12,7 +12,9 @@ import org.keycloak.models.FederatedIdentityModel;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
+import org.keycloak.services.managers.AuthenticationSessionManager;
 import org.keycloak.sessions.AuthenticationSessionModel;
+import org.keycloak.sessions.RootAuthenticationSessionModel;
 import org.keycloak.util.JsonSerialization;
 import org.keycloak.utils.MediaType;
 import top.ysit.qrlogin.config.QRLoginConfig;
@@ -71,6 +73,7 @@ public class QRLoginIdentityProvider extends AbstractIdentityProvider<IdentityPr
         s.setCreatedAt(Instant.now());
         s.setKcSessionId(authSession.getParentSession().getId());
         s.setAuthSession(authSession);
+
         store.put(s);
 
 
@@ -166,13 +169,16 @@ public class QRLoginIdentityProvider extends AbstractIdentityProvider<IdentityPr
             if (!tokenValidationResult.valid()) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-
+            AuthenticationSessionManager asm = new AuthenticationSessionManager(qrIdp.session);
+            RootAuthenticationSessionModel root = asm.getCurrentRootAuthenticationSession(qrIdp.session.getContext().getRealm());
+            AuthenticationSessionModel authSession = root.getAuthenticationSession(qrs.getAuthSession().getClient(), qrs.getAuthSession().getTabId());
 
             BrokeredIdentityContext federatedIdentity = new BrokeredIdentityContext(tokenValidationResult.sub(), qrIdp.getConfig());
             federatedIdentity.setIdp(qrIdp);
+
             federatedIdentity.setUsername(tokenValidationResult.username());
             federatedIdentity.setEmail(tokenValidationResult.email());
-            federatedIdentity.setAuthenticationSession(qrs.getAuthSession());
+            federatedIdentity.setAuthenticationSession(authSession);
 
 
             return callback.authenticated(federatedIdentity);

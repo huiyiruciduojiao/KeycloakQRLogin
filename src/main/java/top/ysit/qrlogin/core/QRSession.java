@@ -86,4 +86,6 @@ public class QRSession {
     public void setResponseUrl(String responseUrl) {
         this.responseUrl = responseUrl;
     }
+
+
 }

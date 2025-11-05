@@ -18,7 +18,7 @@ public class TokenUtil {
         if (token == null || token.isEmpty()) {
             return TokenValidationResult.invalid("token 为空或无效");
         }
-        if (config.baseUrl == null || config.realm == null || config.clientId == null || config.clientSecret == null){
+        if (config.baseUrl == null || config.realm == null || config.clientId == null || config.clientSecret == null) {
             return TokenValidationResult.invalid("配置错误");
         }
 
@@ -62,8 +62,6 @@ public class TokenUtil {
             JsonObject payload = tokenToJson(token);
             String email = payload.getString("email", null);
             String sub = json.getString("sub", null);
-
-
             return TokenValidationResult.valid(username, clientId, email, sub, scope, exp);
 
         } catch (Exception e) {
@@ -82,7 +80,6 @@ public class TokenUtil {
         if (token == null || token.isEmpty()) {
             return null;
         }
-
         try {
             // JWT token 由三部分组成，用点分隔：header.payload.signature
             String[] parts = token.split("\\.");
@@ -103,7 +100,8 @@ public class TokenUtil {
             }
 
             // Base64 解码
-            byte[] decodedBytes = java.util.Base64.getDecoder().decode(payload);
+            // 使用URL安全的Base64解码器
+            byte[] decodedBytes = java.util.Base64.getUrlDecoder().decode(payload);
             String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
 
             // 解析为 JsonObject

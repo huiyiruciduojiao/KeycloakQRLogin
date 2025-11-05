@@ -61,7 +61,19 @@ document.addEventListener("DOMContentLoaded", () => {
             if (expired) return;
             try {
                 const resp = await fetch(`${statusUrl}${statusUrl.includes('?') ? '&' : '?'}timestamp=${Math.floor(Date.now() / 1000)}`);
+                // 检查HTTP状态码，处理404等情况
+                if (!resp.ok) {
+                    if (resp.status === 404) {
+                        // 处理404错误，视为二维码失效
+                        handleQRCodeExpired();
+                        return;
+                    } else {
+                        throw new Error(`HTTP error! status: ${resp.status}`);
+                    }
+                }
+
                 const data = await resp.json();
+
 
                 switch (data.status) {
                     case "CONFIRMED":
@@ -121,5 +133,24 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
         poll();
+        const handleQRCodeExpired = () => {
+            expired = true;
+            tip.innerText = "二维码已失效，请重新开始登录流程";
+            tip.style.color = "#dc3545";
+            count.style.display = "none";
+
+            // 模糊二维码图像
+            const qrImage = box.querySelector('img');
+            if (qrImage) {
+                qrImage.style.filter = "blur(4px)";
+            }
+
+            btn.innerText = "重新开始";
+            btn.style.background = "#007bff";
+            btn.onclick = () => {
+                window.location.reload();
+            };
+        };
     });
+
 });
