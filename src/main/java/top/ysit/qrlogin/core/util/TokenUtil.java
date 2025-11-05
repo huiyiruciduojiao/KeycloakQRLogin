@@ -1,5 +1,6 @@
 package top.ysit.qrlogin.core.util;
 
+import jakarta.annotation.Nonnull;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 
@@ -13,19 +14,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class TokenUtil {
-    private static final String KEYCLOAK_URL = "http://localhost:8080";
-    private static final String REALM = "master";
-    private static final String CLIENT_ID = "test001";
-    private static final String CLIENT_SECRET = "JEKhtMyFAic68UdA8CRXChE1OtDOwHzh";
-
-    public static TokenValidationResult verifyToken(String token) {
+    public static TokenValidationResult verifyToken(String token, @Nonnull IntrospectConfig config) {
         if (token == null || token.isEmpty()) {
             return TokenValidationResult.invalid("token 为空或无效");
+        }
+        if (config.baseUrl == null || config.realm == null || config.clientId == null || config.clientSecret == null){
+            return TokenValidationResult.invalid("配置错误");
         }
 
         try {
             // 构造 introspect URL
-            String urlString = KEYCLOAK_URL + "/realms/" + REALM + "/protocol/openid-connect/token/introspect";
+            String urlString = config.baseUrl + "/realms/" + config.realm + "/protocol/openid-connect/token/introspect";
             URL url = new URL(urlString);
 
             // 设置请求
@@ -34,7 +33,7 @@ public class TokenUtil {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setDoOutput(true);
 
-            String body = String.format("client_id=%s&client_secret=%s&token=%s", CLIENT_ID, CLIENT_SECRET, token);
+            String body = String.format("client_id=%s&client_secret=%s&token=%s", config.clientId, config.clientSecret, token);
 
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(body.getBytes(StandardCharsets.UTF_8));
@@ -121,8 +120,6 @@ public class TokenUtil {
 
 
         public static TokenValidationResult valid(String username, String clientId, String email, String sub, List<String> scope, Long expiration) {
-            System.out.println("valid" + username + " " + clientId + " " + email + " " + scope + " " + expiration);
-
             return new TokenValidationResult(true, null, username, clientId, email, sub, scope, expiration);
         }
 
@@ -132,6 +129,57 @@ public class TokenUtil {
 
         public static TokenValidationResult error(String error) {
             return new TokenValidationResult(false, error, null, null, null, null, null, null);
+        }
+    }
+
+    public static class IntrospectConfig {
+
+
+        private String baseUrl;
+        private String realm;
+        private String clientId;
+        private String clientSecret;
+
+        public IntrospectConfig(String baseUrl, String realm, String clientId, String clientSecret) {
+            this.baseUrl = baseUrl;
+            this.realm = realm;
+            this.clientId = clientId;
+            this.clientSecret = clientSecret;
+        }
+
+        public IntrospectConfig() {
+        }
+
+        public String getBaseUrl() {
+            return baseUrl;
+        }
+
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+        }
+
+        public String getRealm() {
+            return realm;
+        }
+
+        public void setRealm(String realm) {
+            this.realm = realm;
+        }
+
+        public String getClientId() {
+            return clientId;
+        }
+
+        public void setClientId(String clientId) {
+            this.clientId = clientId;
+        }
+
+        public String getClientSecret() {
+            return clientSecret;
+        }
+
+        public void setClientSecret(String clientSecret) {
+            this.clientSecret = clientSecret;
         }
     }
 }

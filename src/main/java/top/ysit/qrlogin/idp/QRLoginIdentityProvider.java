@@ -13,6 +13,7 @@ import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.sessions.AuthenticationSessionModel;
+import org.keycloak.util.JsonSerialization;
 import org.keycloak.utils.MediaType;
 import top.ysit.qrlogin.config.QRLoginConfig;
 import top.ysit.qrlogin.core.QRSession;
@@ -76,24 +77,37 @@ public class QRLoginIdentityProvider extends AbstractIdentityProvider<IdentityPr
         String baseUrl = session.getContext().getUri().getBaseUri().toString();
 
 //        构造请求地址
-        String confirmUrl = baseUrl + "realms/" + request.getRealm().getName() + "/" + QRLoginEndpointProviderFactory.ID + "/" + "qr/confirm?qr_session=" + s.getSessionId() + "&kc_session=" + authSession.getParentSession().getId();
         String checkUrl = baseUrl + "realms/" + request.getRealm().getName() + "/" + QRLoginEndpointProviderFactory.ID + "/" + "qr/status" + "?qr_session=" + s.getSessionId() + "&kc_session=" + authSession.getParentSession().getId();
+        // 构造二维码中的JSON数据
+        Map<String, Object> qrData = new HashMap<>();
+        qrData.put("type", "qr_login");
+        qrData.put("baseUrl", baseUrl + "realms/" + request.getRealm().getName() + "/" + QRLoginEndpointProviderFactory.ID + "/" + "qr/");
+        qrData.put("qr_session", s.getSessionId());
+        qrData.put("kc_session", authSession.getParentSession().getId());
+        qrData.put("algorithm", cfg.getAlgorithm());
+        qrData.put("token", ""); // 客户端需要填充
+        qrData.put("sign", "");   // 客户端需要填充
+        qrData.put("ttl", cfg.getSessionTtlSeconds());
+        qrData.put("timestamp", "");
+        qrData.put("expiredAt", s.getExpireAt().toEpochMilli());
 
-        String imageData;
+
+        String qrJsonData;
         try {
-            imageData = QRCodeUtil.toDataUrl(confirmUrl, 512);
+            qrJsonData = JsonSerialization.writeValueAsPrettyString(qrData);
+            String imageData = QRCodeUtil.toDataUrl(qrJsonData, 512);
+
+            return Response.ok(Map.of("qr_session", s.getSessionId(),
+                            "kc_session", authSession.getParentSession().getId(),
+                            "qr_image_data", imageData,
+                            "statusUrl", checkUrl,
+                            "ttl", cfg.getSessionTtlSeconds(),
+                            "interval", cfg.getPollIntervalMs()
+                    ))
+                    .type(MediaType.APPLICATION_JSON).build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return Response.ok(Map.of("qr_session", s.getSessionId(),
-                        "kc_session", authSession.getParentSession().getId(),
-                        "qr_image_data", imageData,
-                        "confirm", confirmUrl,
-                        "statusUrl", checkUrl,
-                        "ttl", cfg.getSessionTtlSeconds(),
-                        "interval", cfg.getPollIntervalMs()
-                ))
-                .type(MediaType.APPLICATION_JSON).build();
 
     }
 
@@ -135,12 +149,21 @@ public class QRLoginIdentityProvider extends AbstractIdentityProvider<IdentityPr
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
             QRSession qrs = qrIdp.store.get(qrSessionId);
-            if (qrs == null || !qrs.getKcSessionId().equals(kcSessionId) || qrs.getStatus() != QRSessionStatus.CONFIRMED) {;
+            if (qrs == null || !qrs.getKcSessionId().equals(kcSessionId) || qrs.getStatus() != QRSessionStatus.CONFIRMED) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            TokenUtil.TokenValidationResult tokenValidationResult = TokenUtil.verifyToken(token);
-            if (!tokenValidationResult.valid()) {;
+            TokenUtil.IntrospectConfig config = new TokenUtil.IntrospectConfig();
+            config.setClientId(qrIdp.cfg.getClientId());
+            config.setClientSecret(qrIdp.cfg.getSecret());
+            String baseUrl = qrIdp.session.getContext().getUri().getBaseUri().toString();
+            String realm = qrIdp.session.getContext().getRealm().getName();
+            config.setBaseUrl(baseUrl);
+            config.setRealm(realm);
+
+
+            TokenUtil.TokenValidationResult tokenValidationResult = TokenUtil.verifyToken(token,config);
+            if (!tokenValidationResult.valid()) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 

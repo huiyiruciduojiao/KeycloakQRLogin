@@ -7,7 +7,6 @@ import org.keycloak.models.RealmModel;
 import top.ysit.qrlogin.config.QRLoginConfig;
 import top.ysit.qrlogin.core.SessionStore;
 import top.ysit.qrlogin.core.store.InMemorySessionStore;
-import top.ysit.qrlogin.core.store.RedisSessionStore;
 import top.ysit.qrlogin.idp.QRLoginIdentityProviderFactory;
 
 public class QRLoginStoreUtil {
@@ -44,11 +43,11 @@ public class QRLoginStoreUtil {
      * 根据配置创建 SessionStore 实例
      */
     public static SessionStore createStore(QRLoginConfig cfg) {
-        System.out.println("cfg.getStoreType() = " + cfg.getStoreType());
         if ("memory".equalsIgnoreCase(cfg.getStoreType())) {
             return new InMemorySessionStore(cfg);
         }
-        return new RedisSessionStore(cfg.getRedisUri(), cfg.getRedisNamespace(), cfg.getSessionTtlSeconds());
+//        return new RedisSessionStore(cfg.getRedisUri(), cfg.getRedisNamespace(), cfg.getSessionTtlSeconds());
+        return null;
     }
 
 

@@ -43,8 +43,12 @@ public class QRLoginConfig extends IdentityProviderModel {
     public SignatureConfig.SignatureAlgorithm getAlgorithm(){
         return getAlgorithm("algorithm", SignatureConfig.SignatureAlgorithm.HMAC_SHA256);
     }
-
-
+    public String getSecret() {
+        return get("clientSecret", null);
+    }
+    public String getClientId() {
+        return get("clientId", null);
+    }
 
     private String get(String k, String def) {
         String v = model.getConfig() == null ? null : model.getConfig().get(k);

@@ -160,11 +160,17 @@ public class QRLoginEndpoint extends RealmsResource implements RealmResourceProv
 
     }
 
-
     // 在 QRLoginEndpoint 类中添加以下私有方法
     private ValidationResult validateRequest(Map<String, String> body) {
         if (body == null || body.get("timestamp") == null) {
             return ValidationResult.error("Invalid request body");
+        }
+
+
+        String secret = qrLoginConfig.getSecret();
+        String clientId = qrLoginConfig.getClientId();
+        if (secret == null || clientId == null) {
+            return ValidationResult.error("Invalid configuration");
         }
 
 
@@ -174,17 +180,16 @@ public class QRLoginEndpoint extends RealmsResource implements RealmResourceProv
         String sign = body.get("sign");
         String token = body.get("token");
 
+
         if (kcSession == null || qrSession == null || sign == null || token == null) {
             return ValidationResult.error("Invalid request body");
         }
-
         Map<String, String> params = new HashMap<>();
         params.put("qr_session", qrSession);
         params.put("kc_session", kcSession);
         params.put("token", token);
         params.put("timestamp", String.valueOf(timestamp));
         params.put("sign", sign);
-
         try {
             if (!signatureUtil.verify(params)) {
                 return ValidationResult.error("Invalid signature");
@@ -192,18 +197,19 @@ public class QRLoginEndpoint extends RealmsResource implements RealmResourceProv
         } catch (SignatureException e) {
             throw new RuntimeException(e);
         }
-
-
         QRSession qrs = this.store.get(qrSession);
         if (qrs == null) {
             return ValidationResult.error("QR session not found");
         }
-
         if (!kcSession.equals(qrs.getKcSessionId())) {
             return ValidationResult.error("Invalid kcSession");
         }
+        URI baseUri = session.getContext().getUri().getBaseUri();
+        String realm = session.getContext().getRealm().getName();
+        TokenUtil.IntrospectConfig introspectConfig = new TokenUtil.IntrospectConfig(baseUri.toString(), realm, clientId, secret);
 
-        TokenUtil.TokenValidationResult tokenValidationResult = TokenUtil.verifyToken(token);
+
+        TokenUtil.TokenValidationResult tokenValidationResult = TokenUtil.verifyToken(token, introspectConfig);
         if (!tokenValidationResult.valid()) {
             return ValidationResult.error("Invalid token");
         }
