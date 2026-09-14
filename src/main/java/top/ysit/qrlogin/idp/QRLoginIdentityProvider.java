@@ -79,7 +79,6 @@ public class QRLoginIdentityProvider extends AbstractIdentityProvider<IdentityPr
 
         String baseUrl = session.getContext().getUri().getBaseUri().toString();
 
-//        构造请求地址
         String checkUrl = baseUrl + "realms/" + request.getRealm().getName() + "/" + QRLoginEndpointProviderFactory.ID + "/" + "qr/status" + "?qr_session=" + s.getSessionId() + "&kc_session=" + authSession.getParentSession().getId();
         // 构造二维码中的JSON数据
         Map<String, Object> qrData = new HashMap<>();
