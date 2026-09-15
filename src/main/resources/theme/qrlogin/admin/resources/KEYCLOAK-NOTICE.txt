@@ -1,0 +1,9 @@
+This theme includes generated resources from the Keycloak 26.7.3 Admin UI.
+Upstream project: https://github.com/keycloak/keycloak/tree/26.7.3/js/apps/admin-ui
+Keycloak contributors / Red Hat, Inc. Licensed under Apache License 2.0.
+See KEYCLOAK-LICENSE.txt and the copyright/license notices retained in assets.
+
+Local modification: scripts/build-admin-avatar.py adds a useConsoleAvatar call
+inside the native masthead, with the hook distributed as assets/avatar-hook.js.
+All native administration pages are retained. Generated resources are isolated
+under avatar-admin/<digest> and the theme manifest points to that directory.

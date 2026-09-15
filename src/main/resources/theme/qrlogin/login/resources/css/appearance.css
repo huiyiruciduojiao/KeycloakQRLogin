@@ -1,0 +1,58 @@
+.auth-brand-logo { display: block; width: 36px; height: 36px; object-fit: contain; flex: 0 0 36px; }
+/* User-provided background, shared by login/register; keep form surfaces opaque. */
+#keycloak-bg .pf-v5-c-login {
+ background-color: #f2f6fc;
+ background-image: linear-gradient(#f5f8fce8, #f5f8fce8), url('../img/bg.png');
+ background-position: center;
+ background-size: cover;
+ background-repeat: no-repeat;
+}
+[data-theme="dark"] #keycloak-bg .pf-v5-c-login {
+ background-color: #0b192f;
+ background-image: linear-gradient(#09142630, #09142630), url('../img/bg.png');
+}
+#keycloak-bg #kc-header-wrapper { font-size: 20px; letter-spacing: 0; text-transform: none; }
+.auth-visual-brand strong { font-size: 17px; letter-spacing: 0; }
+.auth-appearance { position: absolute; z-index: 2; top: 20px; right: 28px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #738298; }
+.auth-appearance[hidden] { display: none; }
+.auth-appearance select { border: 1px solid #e3e9f1; border-radius: 4px; padding: 6px 24px 6px 10px; background: #fff; color: #52657d; font: inherit; cursor: pointer; }
+html[data-theme="dark"] { color-scheme: dark; --pf-v5-global--primary-color--100: #28b9d2; --pf-v5-global--link--Color: #67c8e0; }
+html.login-pf[data-theme="dark"], html.login-pf[data-theme="dark"] body#keycloak-bg { background: #101723; color: #dbe5f3; }
+[data-theme="dark"] .auth-visual { background: linear-gradient(155deg,#172337,#1b2b40 55%,#152034); }
+[data-theme="dark"] .auth-visual::before { opacity: .06; }
+[data-theme="dark"] .auth-illustration { opacity: .84; }
+[data-theme="dark"] .auth-brand-logo { filter: invert(1); }
+[data-theme="dark"] .auth-visual-brand, [data-theme="dark"] .auth-visual-copy h2 { color: #c8def8; }
+[data-theme="dark"] .auth-visual-brand small, [data-theme="dark"] .auth-visual-copy p { color: #97adca; }
+[data-theme="dark"] #keycloak-bg #kc-header-wrapper { color: #d1e2f7 !important; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-login__main { background: #172131; border-color: #2b394d; color: #e3ebf7; box-shadow: 0 10px 48px #00000015; }
+[data-theme="dark"] #keycloak-bg #kc-page-title { color: #e3ebf7; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-form__label { color: #aabbd1; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-form-control { background: #111b29; color: #e3ebf7; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-form-control::before { border-color: #35445a; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-form-control.pf-m-error::before { border-color: #f47777; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-form-control input, [data-theme="dark"] #keycloak-bg .pf-v5-c-form-control select { color: #e3ebf7; background: transparent; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-button.pf-m-control { background: #111b29; color: #b1c3da; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-button.pf-m-secondary { background: #172131; color: #b7c7dc; --pf-v5-c-button--after--BorderColor: #35445a; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-button.pf-m-secondary:hover { background: #203248; --pf-v5-c-button--after--BorderColor: #5ba7bd; }
+[data-theme="dark"] #keycloak-bg #qr-login-open { background: #142c38; color: #6bd3df; }
+[data-theme="dark"] #keycloak-bg a { color: #72c9e1; }
+[data-theme="dark"] #keycloak-bg .pf-v5-c-check__label, [data-theme="dark"] #keycloak-bg .pf-v5-c-login__main-footer-band { color: #9eafc6; border-color: #2c3b50; }
+[data-theme="dark"] #keycloak-bg #try-another-way { color: #9aaec7; }
+[data-theme="dark"] .auth-page-footer, [data-theme="dark"] .auth-appearance { color: #8ea2bd; }
+[data-theme="dark"] .auth-appearance select { color: #c7d6e9; background: #172131; border-color: #35445a; }
+[data-theme="dark"] #qr-login-dialog { background: #172131; color: #e3ebf7; border-color: #35445a; }
+[data-theme="dark"] #qr-login-dialog::backdrop { background: #03091499; }
+[data-theme="dark"] #qr-dialog-close { color: #b9cbe0; background: #243347; }
+[data-theme="dark"] #qr-dialog-close:hover { color: #fff; background: #324761; }
+[data-theme="dark"] #qr-login-form .qr-instructions, [data-theme="dark"] #qr-login-form .qr-match-code, [data-theme="dark"] #qr-status { color: #a8bbd3; }
+[data-theme="dark"] .qr-match-code strong { background: #243347; color: #dfebf9; }
+[data-theme="dark"] .qr-actions button { background: #203248; border-color: #354c66; color: #b9d8e7; }
+[data-theme="dark"] .qr-actions button:hover { background: #29415a; border-color: #66b8ce; }
+[data-theme="dark"] #qr-network-error, [data-theme="dark"] .qr-modal-error { color: #f2bb77; }
+/* Keep the QR image white/black in both modes: never invert machine-readable pixels. */
+@media (max-width: 700px) {
+ .auth-appearance { top: 12px; right: 18px; }
+ #keycloak-bg .pf-v5-c-login { padding-top: 64px; }
+ #keycloak-bg #kc-header-wrapper { font-size: 18px; }
+}

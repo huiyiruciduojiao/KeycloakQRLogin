@@ -1,156 +1,131 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const qrBtn = document.querySelector('a[id^="social-qrlogin"]');
-    if (!qrBtn) return;
-
-    qrBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-
-        const res = await fetch(qrBtn.href, {method: "POST"}).then(res => res.text());
-        if (!res) return;
-
-        const json = JSON.parse(res);
-        if (!json.qr_session || !json.kc_session) return;
-
-        const {qr_image_data, ttl, statusUrl, interval} = json;
-
-        // 创建遮罩与弹窗
-        const mask = document.createElement("div");
-        mask.style = `
-            position:fixed;top:0;left:0;right:0;bottom:0;
-            background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);
-            z-index:9998;
-        `;
-
-        const box = document.createElement("div");
-        box.style = `
-            position:fixed;left:50%;top:50%;
-            transform:translate(-50%,-50%);
-            width:380px;padding:24px;border-radius:14px;
-            background:#fff;z-index:9999;
-            box-shadow:0 6px 30px rgba(0,0,0,0.25);
-            text-align:center;font-family:-apple-system,Segoe UI,Roboto,sans-serif;
-        `;
-
-        box.innerHTML = `
-            <h3 style="margin:0 0 12px;color:#222;">扫码登录易识IT账号</h3>
-            <img src="${qr_image_data}" width="240" height="240" style="border:1px solid #eee;border-radius:8px;" />
-            <p id="qr-tip" style="font-size:14px;color:#555;margin-top:10px;">请使用易识IT App 扫描二维码以继续登录</p>
-            <p id="qr-count" style="font-size:12px;color:#888;margin-top:4px;">二维码将在 ${ttl} 秒后失效</p>
-            <button id="qr-close" style="margin-top:14px;padding:6px 20px;border:none;background:#6c757d;color:white;border-radius:6px;cursor:pointer;">取消</button>
-        `;
-        document.body.append(mask, box);
-
-        const tip = document.getElementById("qr-tip");
-        const count = document.getElementById("qr-count");
-        const btn = document.getElementById("qr-close");
-
-        const closeModal = () => {
-            mask.remove();
-            box.remove();
-            window.location.reload();
-        };
-        mask.onclick = closeModal;
-        btn.onclick = closeModal;
-
-        // 记录起始时间和结束时间
-        const startTime = Date.now();
-        const endTime = startTime + (ttl * 1000);
-        let expired = false;
-
-        const poll = async () => {
-            if (expired) return;
-            try {
-                const resp = await fetch(`${statusUrl}${statusUrl.includes('?') ? '&' : '?'}timestamp=${Math.floor(Date.now() / 1000)}`);
-                // 检查HTTP状态码，处理404等情况
-                if (!resp.ok) {
-                    if (resp.status === 404) {
-                        // 处理404错误，视为二维码失效
-                        handleQRCodeExpired();
-                        return;
-                    } else {
-                        throw new Error(`HTTP error! status: ${resp.status}`);
-                    }
-                }
-
-                const data = await resp.json();
-
-
-                switch (data.status) {
-                    case "CONFIRMED":
-                        const url = data.url;
-
-                        tip.innerText = "身份验证通过，正在跳转...";
-                        count.style.display = "none";
-                        btn.disabled = true;
-                        btn.style.background = "#28a745";
-                        setTimeout(() => (window.location.href = url), 600);
-                        return;
-                    case "SCANNED":
-                        tip.innerText = "二维码已扫描，请在手机端确认登录";
-                        break;
-                    case "PENDING":
-                        tip.innerText = "等待扫描，请打开易识IT App 扫描二维码";
-                        break;
-                    case "EXPIRED":
-                        expired = true;
-                        tip.innerText = "二维码已失效，请重新开始登录流程";
-                        count.style.display = "none";
-                        btn.innerText = "重新开始";
-                        btn.style.background = "#007bff";
-                        btn.onclick = () => {
-                            mask.remove();
-                            box.remove();
-                            qrBtn.click();
-                        };
-                        return;
-                    default:
-                        tip.innerText = "正在等待响应，请稍候...";
-                }
-
-                // 基于实际时间计算剩余时间
-                const now = Date.now();
-                const remaining = Math.max(0, endTime - now) / 1000;
-
-                if (remaining > 0) {
-                    count.innerText = `二维码将在 ${Math.round(remaining)} 秒后失效`;
-                    setTimeout(poll, interval);
-                } else {
-                    expired = true;
-                    tip.innerText = "二维码已失效，请重新开始登录流程";
-                    count.style.display = "none";
-                    btn.innerText = "重新开始";
-                    btn.style.background = "#007bff";
-                    btn.onclick = () => {
-                        mask.remove();
-                        box.remove();
-                        qrBtn.click();
-                    };
-                }
-            } catch (err) {
-                tip.innerText = "网络异常，请检查连接后重试";
-                count.style.display = "none";
-                console.error(err);
+"use strict";
+const startQrPolling = () => {
+    const form = document.getElementById("qr-login-form");
+    if (!form || !["PENDING", "SCANNED", "CONFIRMED", "DENIED"].includes(form.dataset.qrState)) return;
+    const check = document.getElementById("qr-check");
+    const error = document.getElementById("qr-network-error");
+    const status = document.getElementById("qr-status");
+    const actionPath = new URL(form.action).pathname;
+    let timer, clockTimer, controller, inFlight = false, submitted = false, queuedButton = null, failures = 0, isExpired = false;
+    const countdown = document.getElementById("qr-countdown");
+    const timeLeft = document.getElementById("qr-time-left");
+    const overlay = document.getElementById("qr-state-overlay");
+    const overlayStatus = document.getElementById("qr-overlay-status");
+    const overlayRestart = document.getElementById("qr-overlay-restart");
+    const labels = { PENDING: form.dataset.qrPending, SCANNED: form.dataset.qrScanned,
+        CONFIRMED: form.dataset.qrConfirmed, DENIED: form.dataset.qrDenied,
+        EXPIRED: form.dataset.qrExpired, CANCELLED: form.dataset.qrCancelled, CONSUMED: form.dataset.qrConsumed };
+    const mask = state => {
+        form.classList.add("qr-is-masked");
+        overlayStatus.textContent = labels[state];
+        overlay.hidden = false;
+        overlayRestart.hidden = true;
+        status.hidden = true;
+    };
+    const expired = (force = false) => {
+        if (!force && !isExpired && Date.now() < Number(form.dataset.qrExpiry)) return false;
+        isExpired = true;
+        form.dataset.qrState = "EXPIRED";
+        mask("EXPIRED");
+        form.classList.add("qr-is-expired");
+        overlayRestart.hidden = false;
+        countdown.hidden = true;
+        status.hidden = true;
+        error.hidden = true;
+        check.disabled = true;
+        window.clearTimeout(timer);
+        window.clearInterval(clockTimer);
+        return true;
+    };
+    const updateCountdown = () => {
+        if (submitted || expired()) return;
+        const seconds = Math.max(0, Math.ceil((Number(form.dataset.qrExpiry) - Date.now()) / 1000));
+        timeLeft.textContent = String(Math.floor(seconds / 60)).padStart(2, "0") + ":" + String(seconds % 60).padStart(2, "0");
+        countdown.hidden = false;
+    };
+    const denied = () => {
+        mask("DENIED");
+        form.classList.add("qr-is-denied");
+        overlayRestart.hidden = false;
+        error.hidden = true;
+        countdown.hidden = true;
+        check.disabled = true;
+        window.clearTimeout(timer);
+        window.clearInterval(clockTimer);
+    };
+    const poll = async () => {
+        if (submitted || inFlight || expired()) return;
+        if (document.visibilityState === "hidden") {
+            timer = window.setTimeout(poll, 3000);
+            return;
+        }
+        inFlight = true;
+        form.dataset.qrBusy = "true";
+        controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 10000);
+        let finish = false;
+        try {
+            const response = await fetch(form.action, {
+                method: "POST", credentials: "same-origin", cache: "no-store", redirect: "error",
+                headers: { "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded" },
+                body: "operation=status", signal: controller.signal
+            });
+            if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) throw new Error("status unavailable");
+            const data = await response.json();
+            const next = new URL(data.action, window.location.href);
+            if (next.origin !== window.location.origin || next.pathname !== actionPath) throw new Error("invalid action");
+            if (!["PENDING", "SCANNED", "CONFIRMED", "DENIED", "CANCELLED", "CONSUMED", "EXPIRED"].includes(data.state)) throw new Error("invalid state");
+            if (!Number.isFinite(data.expiresAt)) throw new Error("invalid expiry");
+            form.action = next.href;
+            form.dataset.qrExpiry = String(data.expiresAt);
+            form.dataset.qrState = data.state;
+            failures = 0;
+            error.hidden = true;
+            if (labels[data.state]) status.textContent = labels[data.state];
+            if (data.state === "EXPIRED") expired(true);
+            else if (data.state === "DENIED") denied();
+            else {
+                if (data.state !== "PENDING") mask(data.state);
+                updateCountdown();
+                finish = !isExpired && !["PENDING", "SCANNED"].includes(data.state);
             }
-        };
-        poll();
-        const handleQRCodeExpired = () => {
-            expired = true;
-            tip.innerText = "二维码已失效，请重新开始登录流程";
-            tip.style.color = "#dc3545";
-            count.style.display = "none";
-
-            // 模糊二维码图像
-            const qrImage = box.querySelector('img');
-            if (qrImage) {
-                qrImage.style.filter = "blur(4px)";
-            }
-
-            btn.innerText = "重新开始";
-            btn.style.background = "#007bff";
-            btn.onclick = () => {
-                window.location.reload();
-            };
-        };
+        } catch (_) {
+            failures += 1;
+            if (!submitted && !isExpired) error.hidden = false;
+        } finally {
+            window.clearTimeout(timeout);
+            inFlight = false;
+            form.dataset.qrBusy = "false";
+            form.dispatchEvent(new Event("qr:idle"));
+        }
+        if (submitted) return;
+        // Complete via real navigation so OAuth callbacks and MFA are never swallowed by fetch.
+        if (queuedButton || finish) {
+            const button = queuedButton || check;
+            queuedButton = null;
+            form.requestSubmit(button);
+        } else if (failures < 3 && ["PENDING", "SCANNED"].includes(form.dataset.qrState) && !expired()) {
+            timer = window.setTimeout(poll, 3000 * Math.max(1, failures));
+        }
+    };
+    form.addEventListener("submit", event => {
+        window.clearTimeout(timer);
+        if (inFlight) { event.preventDefault(); queuedButton = event.submitter || check; return; }
+        submitted = true;
+        window.clearInterval(clockTimer);
     });
-
-});
+    form.addEventListener("qr:stop", () => { submitted = true; window.clearTimeout(timer); window.clearInterval(clockTimer); });
+    window.addEventListener("pagehide", () => {
+        submitted = true;
+        window.clearTimeout(timer);
+        window.clearInterval(clockTimer);
+        controller?.abort();
+    }, { once: true });
+    if (form.dataset.qrState === "DENIED") { denied(); return; }
+    if (form.dataset.qrState !== "PENDING") mask(form.dataset.qrState);
+    timer = window.setTimeout(poll, form.dataset.qrState === "CONFIRMED" ? 100 : 1000);
+    clockTimer = window.setInterval(updateCountdown, 1000);
+    updateCountdown();
+};
+document.addEventListener("DOMContentLoaded", startQrPolling);
+document.addEventListener("qr:mounted", startQrPolling);
