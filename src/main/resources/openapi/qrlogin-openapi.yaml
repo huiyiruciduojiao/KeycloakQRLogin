@@ -1,173 +1,121 @@
 openapi: 3.0.3
 info:
   title: Keycloak QR Login API
-  version: 0.1.0
+  version: 2.0.0
+  description: Same-realm mobile approval. Single-node storage. Browser completion uses Keycloak authentication actions.
 servers:
-  - url: /realms/{realm}/qrlogin/endpoint
+  - url: /realms/{realm}/qr-login
     variables:
       realm:
-        default: master
-        description: Keycloak realm name
-
+        default: demo
+security:
+  - bearerAuth: []
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Same-realm enabled user token with configured audience and azp and a valid user session. No special client role is required. Service accounts are rejected.
+  parameters:
+    transactionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[A-Za-z0-9_-]{43}$'
   schemas:
-    ValidationError:
+    Result:
       type: object
-      properties:
-        error:
-          type: string
-          description: 错误信息
-      example:
-        error: "Invalid request body"
-
-    StatusResponse:
-      type: object
+      required: [status, application, user_code, expires_at]
       properties:
         status:
           type: string
-          enum: [PENDING, SCANNED, CONFIRMED, EXPIRED]
-        url:
+          enum: [SCANNED, CONFIRMED, DENIED]
+        application:
           type: string
-          description: 确认后的回调URL
-
-    ScanRequest:
-      type: object
-      required: [kc_session, qr_session, timestamp, sign, token]
-      properties:
-        kc_session:
+        user_code:
           type: string
-          description: Keycloak会话ID
-        qr_session:
-          type: string
-          description: QR会话ID
-        timestamp:
+        expires_at:
           type: integer
-          description: 时间戳（秒）
-        sign:
-          type: string
-          description: 请求签名
-        token:
-          type: string
-          description: JWT Token
-
-    ConfirmRequest:
+          format: int64
+          description: UTC epoch milliseconds
+    Error:
       type: object
-      required: [kc_session, qr_session, timestamp, sign, token]
+      required: [error]
       properties:
-        kc_session:
-          type: string
-          description: Keycloak会话ID
-        qr_session:
-          type: string
-          description: QR会话ID
-        timestamp:
-          type: integer
-          description: 时间戳（秒）
-        sign:
-          type: string
-          description: 请求签名
-        token:
-          type: string
-          description: JWT Token
-
-    ConfirmResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          example: "ok"
         error:
           type: string
-          description: 错误信息
-
+          enum: [transaction_not_found, invalid_token, not_allowed, invalid_transition]
+  responses:
+    Success:
+      description: Transition completed or identical operation retried by the same user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Result'
+    Unauthorized:
+      description: Missing or invalid user bearer token
+    Forbidden:
+      description: User, client or authorized party is not allowed
+    NotFound:
+      description: Unknown, expired or wrong-realm transaction
+    Conflict:
+      description: Wrong user or invalid state transition
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
 paths:
-  /qr/scan:
+  /transactions/{id}/scan:
     post:
-      summary: 扫描二维码
-      description: 用户使用App扫描二维码后调用此接口
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScanRequest'
-      responses:
-        '200':
-          description: 扫描成功
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "ok"
-                  error:
-                    type: string
-        '400':
-          description: 请求验证失败
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-
-  /qr/confirm:
-    post:
-      summary: 确认登录
-      description: 用户在App上确认登录后调用此接口
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfirmRequest'
-      responses:
-        '200':
-          description: 确认成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConfirmResponse'
-        '400':
-          description: 请求验证失败
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-
-  /qr/status:
-    get:
-      summary: 查询二维码状态
-      description: 前端轮询查询二维码扫描和确认状态
+      operationId: scan
+      summary: Bind transaction to the scanning user
       parameters:
-        - name: kc_session
-          in: query
-          required: true
-          schema:
-            type: string
-          description: Keycloak会话ID
-        - name: qr_session
-          in: query
-          required: true
-          schema:
-            type: string
-          description: QR会话ID
-        - name: timestamp
-          in: query
-          required: true
-          schema:
-            type: integer
-          description: 时间戳（秒）
+        - $ref: '#/components/parameters/transactionId'
       responses:
         '200':
-          description: 返回二维码状态
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        '400':
-          description: 请求参数错误
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: 会话ID不匹配
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: 会话不存在或已过期
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /transactions/{id}/confirm:
+    post:
+      operationId: confirm
+      summary: Explicitly approve login as the same user who scanned
+      parameters:
+        - $ref: '#/components/parameters/transactionId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /transactions/{id}/deny:
+    post:
+      operationId: deny
+      summary: Reject login as the same user who scanned
+      parameters:
+        - $ref: '#/components/parameters/transactionId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'

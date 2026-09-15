@@ -1,1 +1,2 @@
-top.ysit.qrlogin.idp.resource.factory.QRLoginEndpointProviderFactory
+top.ysit.qrlogin.auth.QRLoginResourceFactory
+top.ysit.qrlogin.avatar.AvatarResourceFactory

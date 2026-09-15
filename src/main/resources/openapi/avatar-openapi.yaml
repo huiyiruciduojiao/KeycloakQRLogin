@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: Keycloak User Avatar API
+  version: '1.0'
+  description: >-
+    Keycloak 26.7.3 single-node avatar module. Enabled same-realm human users with
+    valid sessions may read their own avatar using a Bearer access token, without
+    an avatar client allowlist or audience restriction. Batch lookup and mutations
+    require the configured client policy. Service accounts are not supported in v1.
+servers:
+  - url: /realms/{realm}/avatars
+    variables:
+      realm: {default: example}
+security:
+  - bearer: []
+paths:
+  /me:
+    get:
+      operationId: getMyAvatar
+      description: Requires a valid same-realm human user access token and session; no avatar client allowlist or audience requirement. Client Web Origins still apply to cross-origin browser requests.
+      parameters:
+        - $ref: '#/components/parameters/sizeQuery'
+      responses:
+        '200':
+          description: Current avatar or default avatar. Cache-Control is no-store.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Avatar'}
+        default: {$ref: '#/components/responses/Error'}
+    put:
+      operationId: replaceMyAvatar
+      description: >-
+        Exactly one multipart field named file. JPEG or non-animated PNG up to
+        5 MiB (5,242,880 bytes) and 4,000,000 pixels (width times height).
+        Dimensions are checked before full decode. Images are center-cropped and re-encoded to
+        PNG at 64, 128, and 256 pixels. The account UI accepts local originals up
+        to 16 million pixels and crops to 512 by 512 PNG before upload; this does
+        not raise the REST upload limit.
+        No userId field is accepted. Mutations commit to local storage independently
+        of the Keycloak database transaction.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [file]
+              properties:
+                file: {type: string, format: binary}
+      responses:
+        '200':
+          description: Updated avatar at 128px. Previous image URLs cease to resolve at the server.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Avatar'}
+        default: {$ref: '#/components/responses/Error'}
+    delete:
+      operationId: deleteMyAvatar
+      description: Idempotently removes the caller's current avatar.
+      responses:
+        '200':
+          description: Default avatar at 128px.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Avatar'}
+        default: {$ref: '#/components/responses/Error'}
+  /batch:
+    post:
+      operationId: getAvatarsByUserIds
+      description: >-
+        Maximum raw array length 100, request body up to 64 KiB. Opaque user IDs;
+        deduplicated in first-occurrence order. DEFAULT means an accessible user
+        without a custom avatar. UNAVAILABLE merges missing, disabled and denied
+        targets. Storage failures are errors, never substituted defaults.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userIds]
+              properties:
+                userIds:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items: {type: string, minLength: 1, maxLength: 1024}
+                size: {type: integer, enum: [64, 128, 256], default: 128}
+      responses:
+        '200':
+          description: Avatar addresses load directly without bearer headers. Response is no-store.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: '#/components/schemas/Avatar'}
+        default: {$ref: '#/components/responses/Error'}
+  /content/{asset}/{size}:
+    get:
+      operationId: readSignedAvatarImage
+      security: []
+      description: >-
+        Signature binds realm ID, asset/version, size, expiry and key ID.
+        Anyone holding the URL can read until expiration. Current version and
+        current user state are checked before serving an image or 304.
+        Private cache lifetime is at most 300 seconds and never exceeds URL expiry.
+      parameters:
+        - {name: asset, in: path, required: true, schema: {type: string, pattern: '^[a-f0-9]{32}$'}}
+        - $ref: '#/components/parameters/sizePath'
+        - {name: exp, in: query, required: true, schema: {type: integer, format: int64}, description: UTC epoch seconds}
+        - {name: kid, in: query, required: true, schema: {type: string}}
+        - {name: sig, in: query, required: true, schema: {type: string}, description: HMAC-SHA256 base64url signature}
+      responses:
+        '200':
+          description: Re-encoded PNG.
+          content:
+            image/png:
+              schema: {type: string, format: binary}
+        '304': {description: Unchanged, after authorization and version checks.}
+        default: {$ref: '#/components/responses/Error'}
+  /default/{size}:
+    get:
+      operationId: readDefaultAvatar
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/sizePath'
+      responses:
+        '200':
+          description: Generic non-identifying PNG for enabled realms.
+          content:
+            image/png:
+              schema: {type: string, format: binary}
+        '304': {description: Unchanged.}
+        default: {$ref: '#/components/responses/Error'}
+components:
+  securitySchemes:
+    bearer: {type: http, scheme: bearer, bearerFormat: JWT}
+  parameters:
+    sizeQuery: {name: size, in: query, schema: {type: integer, enum: [64, 128, 256], default: 128}}
+    sizePath: {name: size, in: path, required: true, schema: {type: integer, enum: [64, 128, 256]}}
+  schemas:
+    Avatar:
+      type: object
+      required: [userId, status]
+      properties:
+        userId: {type: string}
+        status: {type: string, enum: [CUSTOM, DEFAULT, UNAVAILABLE]}
+        url: {type: string, format: uri, nullable: true}
+        version: {type: string, nullable: true}
+        expiresAt: {type: string, format: date-time, nullable: true, description: UTC; default images do not expire.}
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: {type: string}
+  responses:
+    Error:
+      description: >-
+        400 invalid input; 401 missing/invalid session/token; 403 denied client/origin/user;
+        404 disabled realm/module or unavailable signed image; 413 size/dimensions limit;
+        415 unsupported image; 429 decoder capacity; 503 storage/configuration or
+        image-runtime failure; 507 storage quota.
+        Framework/proxy-level errors may use a different envelope. No secrets or paths are returned.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}

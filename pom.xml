@@ -6,16 +6,22 @@
 
     <groupId>top.ysit</groupId>
     <artifactId>KeycloakQRLogin</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>2.1</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <keycloak.version>26.4.2</keycloak.version>
+        <keycloak.version>26.7.3</keycloak.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-core</artifactId>
+            <version>6.2.12.Final</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Keycloak Server SPI -->
         <dependency>
             <groupId>org.keycloak</groupId>
@@ -36,11 +42,17 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- JAX-RS, JSON -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.17.2</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.15.2</version>
+            <scope>test</scope>
         </dependency>
 
 
@@ -54,10 +66,16 @@
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>3.5.3</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -74,6 +92,9 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <minimizeJar>false</minimizeJar>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>

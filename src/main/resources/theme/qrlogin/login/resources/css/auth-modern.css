@@ -1,0 +1,78 @@
+/* Shared login/register shell; native Keycloak fields and validation remain intact. */
+:root { color-scheme: light; --pf-v5-global--primary-color--100: #079be7; --pf-v5-global--link--Color: #168cb8; }
+html.login-pf, html.login-pf body#keycloak-bg { background: #fff; background-image: none; color: #29354c; }
+body#keycloak-bg { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; }
+.auth-visual { position: fixed; inset: 0 auto 0 0; width: 32%; background: linear-gradient(155deg,#e9eff7 0%,#f4f8fc 48%,#e7eef7 100%); overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+.auth-visual::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(30deg,transparent 0 100px,#fff6 101px 103px,transparent 104px 180px); pointer-events: none; }
+.auth-visual-brand { position: absolute; top: 44px; left: 36px; right: 24px; display: flex; align-items: center; gap: 12px; color: #314d87; z-index: 1; }
+.auth-visual-brand strong { display: block; font-size: 19px; font-weight: 600; letter-spacing: 1px; }
+.auth-visual-brand small { display: block; margin-top: 5px; font-size: 10px; letter-spacing: 2.4px; color: #7d91b5; }
+.auth-brand-mark { flex: 0 0 28px; display: inline-block; width: 28px; height: 30px; background: linear-gradient(135deg,#28d6c4,#1499ed 65%,#4761e6); clip-path: polygon(50% 0,100% 23%,100% 68%,50% 100%,0 68%,0 23%); position: relative; }
+.auth-brand-mark::after { content: ""; position: absolute; inset: 7px; background: #fff; clip-path: polygon(50% 0,100% 23%,100% 68%,50% 100%,0 68%,0 23%); }
+.auth-illustration { position: absolute; top: 17%; width: 115%; max-width: none; height: 60%; object-fit: contain; }
+.auth-visual-copy { position: absolute; top: 77%; left: 20px; right: 20px; text-align: center; }
+.auth-visual-copy h2 { margin: 0 0 14px; color: #345183; font-size: clamp(18px,1.5vw,24px); font-weight: 600; letter-spacing: 1px; }
+.auth-visual-copy p { margin: 0; color: #8295b4; font-size: 12px; letter-spacing: 1px; }
+.auth-visual-rule { display: block; width: 26px; height: 2px; margin: 24px auto; background: #48b5e9; }
+.auth-visual-bottom { position: absolute; bottom: 28px; display: flex; gap: 7px; }
+.auth-visual-bottom i { width: 4px; height: 4px; background: #cedbef; border-radius: 50%; }
+.auth-visual-bottom i:nth-child(2) { width: 14px; border-radius: 3px; background: #6c9feb; }
+#keycloak-bg .pf-v5-c-login { box-sizing: border-box; margin-left: 32%; width: 68%; min-height: 100dvh; padding: 32px 40px; background: none; display: flex; align-items: center; justify-content: center; }
+#keycloak-bg .pf-v5-c-login__container { display: flex; flex-direction: column; width: 100%; max-width: 440px; padding: 0; gap: 28px; }
+#kc-header { width: 100%; margin: 0; padding: 0; text-align: center; }
+#keycloak-bg #kc-header-wrapper { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0; margin: 0; color: #314c84 !important; font-size: 21px; font-weight: 600; white-space: normal; }
+#keycloak-bg .pf-v5-c-login__main { width: 100%; background: #fff; color: #29354c; border: 1px solid #e9eef5; border-radius: 2px; box-shadow: 0 6px 44px #41689508; overflow: visible; }
+#keycloak-bg .pf-v5-c-login__main::before, #keycloak-bg .pf-v5-c-login__main::after { display: none; }
+#keycloak-bg .pf-v5-c-login__main-header { padding: 28px 30px 22px; gap: 12px; border: 0; }
+#kc-page-title { font-size: 21px; line-height: 1.5; font-weight: 600; letter-spacing: 0; }
+#kc-page-title::after { content: ""; display: block; width: 20px; height: 3px; margin-top: 7px; background: #20c6cd; }
+#keycloak-bg .pf-v5-c-login__main-body { padding: 0 30px 28px; }
+#keycloak-bg .pf-v5-c-form { gap: 15px; }
+#keycloak-bg .pf-v5-c-form__label { color: #718097; font-size: 12px; font-weight: 400; }
+#keycloak-bg .pf-v5-c-form-control { min-height: 42px; border-radius: 2px; background: #fafbfd; color: #29354c; --pf-v5-c-form-control--after--BorderBottomWidth: 1px; }
+#keycloak-bg .pf-v5-c-form-control::before { border: 1px solid #e3e8ef; border-radius: 2px; }
+#keycloak-bg .pf-v5-c-form-control::after { border-radius: 2px; }
+#keycloak-bg .pf-v5-c-form-control:focus-within { box-shadow: 0 0 0 2px #18b5d512; }
+#keycloak-bg .pf-v5-c-form-control.pf-m-error::before { border-color: #c9190b; }
+#keycloak-bg .pf-v5-c-form-control input, #keycloak-bg .pf-v5-c-form-control select { min-height: 42px; font-size: 13px; color: #29354c; }
+#keycloak-bg .pf-v5-c-input-group { gap: 0; }
+#keycloak-bg .pf-v5-c-button { min-height: 42px; padding: 9px 14px; border-radius: 2px; font-size: 13px; font-weight: 500; transition: background-color .15s,box-shadow .15s; }
+#keycloak-bg .pf-v5-c-button::after { border-radius: inherit; }
+#keycloak-bg .pf-v5-c-button.pf-m-primary { background: linear-gradient(105deg,#22cbbb,#0798ed); color: #fff; box-shadow: none; }
+#keycloak-bg .pf-v5-c-button.pf-m-primary:hover { background: linear-gradient(105deg,#1ab5ac,#0786d4); }
+#keycloak-bg .pf-v5-c-button.pf-m-secondary { background: #fff; color: #617087; --pf-v5-c-button--after--BorderColor: #e2e8f0; }
+#keycloak-bg .pf-v5-c-button.pf-m-secondary:hover { background: #f5fbfd; --pf-v5-c-button--after--BorderColor: #9dd8e5; }
+#keycloak-bg .pf-v5-c-button.pf-m-control { color: #98a5b5; background: #fafbfd; border-radius: 0 2px 2px 0; }
+#keycloak-bg :is(button,a,select):focus-visible { outline: 2px solid #64bad9; outline-offset: 3px; }
+#keycloak-bg input:focus-visible { outline: none; }
+#keycloak-bg a { color: #388db5; }
+#keycloak-bg .pf-v5-c-check__label { font-size: 12px; color: #8290a2; }
+#keycloak-bg .pf-v5-c-login__main-footer-band { background: transparent; padding: 16px 0 0; margin-top: 12px; border-top: 1px solid #edf0f5; color: #8c97a7; font-size: 12px; }
+#keycloak-bg .pf-v5-c-login__main-footer { padding: 0; }
+#keycloak-bg .pf-v5-c-login__main-footer:empty { display: none; }
+#keycloak-bg .pf-v5-c-alert { border-radius: 2px; }
+#qr-login-entry { margin-top: 8px !important; }
+#keycloak-bg #qr-login-open { color: #199eb6; background: #f7fcfd; }
+#keycloak-bg #kc-select-try-another-way-form { margin-top: 8px; text-align: center; }
+#keycloak-bg #try-another-way { min-height: auto; margin: 0; padding: 4px; border: 0; background: none; box-shadow: none; font-weight: 400; font-size: 12px; color: #93a0b1; }
+#try-another-way::after { border: 0; }
+#keycloak-bg #kc-social-providers ul { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 0; padding: 0; }
+#keycloak-bg #kc-social-providers li { padding: 0; }
+#keycloak-bg #kc-social-providers a { min-width: 0; justify-content: center; gap: 8px; }
+#keycloak-bg .pf-v5-c-login__main-header-utilities .pf-v5-c-form-control { min-height: 28px; }
+#keycloak-bg #login-select-toggle { min-height: 28px; font-size: 12px; }
+.auth-page-footer { color: #b2bbc7; text-align: center; font-size: 11px; letter-spacing: 1px; margin: 0; }
+@media (max-width: 1000px) {
+ .auth-visual-brand { left: 22px; }
+ .auth-visual-brand strong { font-size: 16px; }
+ .auth-visual-copy h2 { font-size: 17px; }
+ .auth-visual-copy p { font-size: 10px; letter-spacing: 0; }
+}
+@media (max-width: 700px) {
+ .auth-visual { display: none; }
+ #keycloak-bg .pf-v5-c-login { margin-left: 0; width: 100%; padding: 36px 22px; }
+ #keycloak-bg .pf-v5-c-login__main-header { padding: 24px 24px 20px; }
+ #keycloak-bg .pf-v5-c-login__main-body { padding: 0 24px 24px; }
+ #kc-header-wrapper { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { #keycloak-bg .pf-v5-c-button { transition: none; } }

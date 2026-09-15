@@ -1,0 +1,2 @@
+import{jsxs as r,Fragment as t,jsx as s}from"react/jsx-runtime";import{a as n,c as i,a4 as l}from"./main-CB1rIpj1.js";import{J as o}from"./JwksSettings-DvftaFnq.js";function f(){const{t:a}=n(),{tab:e}=i();return r(t,{children:[s(l,{name:"alias",label:a("alias"),labelIcon:a("aliasHelp"),readOnly:e==="settings",rules:{required:a("required")}}),s(o,{})]})}export{f as D};
+//# sourceMappingURL=DefaultTrustSettings-CSODeQbJ.js.map

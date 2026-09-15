@@ -1,0 +1,33 @@
+#qr-login-dialog {
+    box-sizing: border-box; width: min(384px, calc(100vw - 32px)); max-height: calc(100dvh - 32px);
+    margin: auto; padding: 20px 24px; border: 1px solid #e5eaf0; border-radius: 6px;
+    color: #182335; background: #fff; box-shadow: 0 24px 80px #15243b30; overflow-y: auto;
+}
+#qr-login-dialog::backdrop { background: #24365345; backdrop-filter: blur(3px); }
+.qr-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.qr-dialog-heading h2 { margin: 0; font-size: 20px; font-weight: 650; }
+#qr-dialog-close { display: grid; place-items: center; flex: 0 0 32px; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: #f2f5f9; color: #64748b; font: 24px/1 sans-serif; cursor: pointer; }
+#qr-dialog-close:hover { background: #e8edf4; color: #182335; }
+#keycloak-bg #qr-login-form { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+#qr-login-form p { margin: 0; font-size: 14px; line-height: 1.6; }
+#qr-login-form .qr-instructions { color: #8a97a9; max-width: 300px; white-space: pre-line; font-size: 13px; }
+.qr-image-frame { padding: 8px; border: 1px solid #e8edf4; border-radius: 16px; background: #fff; max-width: 100%; }
+.qr-image-frame img { display: block; width: 240px; max-width: 100%; height: auto; margin: 0; }
+#qr-login-form .qr-match-code { display: flex; align-items: center; justify-content: center; gap: 12px; color: #64748b; }
+.qr-match-code strong { padding: 4px 12px; border-radius: 8px; background: #f1f5f9; color: #1e293b; font: 600 18px/1.5 ui-monospace, monospace; letter-spacing: 3px; }
+#qr-status { color: #52657d; }
+#qr-status::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-inline-end: 8px; border-radius: 50%; background: #3b82f6; vertical-align: middle; }
+#qr-login-form[data-qr-state="SCANNED"] #qr-state-overlay strong { color: #166534; }
+#qr-login-form[data-qr-state="CONFIRMED"] #qr-state-overlay strong { color: #166534; }
+#qr-login-form[data-qr-state="DENIED"] #qr-state-overlay strong { color: #b42318; }
+#qr-login-form[data-qr-state="EXPIRED"] #qr-state-overlay strong { color: #b45309; }
+#qr-network-error, .qr-modal-error { color: #b45309; font-size: 14px; }
+.qr-actions { display: flex; justify-content: center; gap: 12px; width: 100%; padding-top: 2px; }
+.qr-actions button { min-height: 40px; padding: 8px 18px; border: 1px solid #dce4ee; border-radius: 10px; background: #f8fafc; color: #34465e; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+.qr-actions button:hover { border-color: #b9cbe4; background: #eff5ff; color: #245fd5; }
+.qr-refresh span { font-size: 19px; vertical-align: -1px; margin-inline-end: 3px; }
+#qr-login-dialog .qr-cancel { display: none; }
+#qr-login-form [hidden] { display: none !important; }
+#qr-login-dialog button:focus-visible, .qr-actions button:focus-visible { outline: 3px solid #93b7ff; outline-offset: 3px; }
+#qr-login-dialog button:disabled { opacity: .5; cursor: wait; }
+@media (max-width: 400px) { #qr-login-dialog { padding: 20px; } }

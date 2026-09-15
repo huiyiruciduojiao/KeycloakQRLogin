@@ -1,0 +1,275 @@
+/* One continuous scene; all controls remain native Keycloak markup. */
+:root {
+ color-scheme: light;
+ --auth-text: #18324b; --auth-muted: #415b73; --auth-link: #075f9e;
+ --auth-card: linear-gradient(145deg,#f6fbffdf,#dcebf5bf);
+ --auth-card-fallback: #eaf2f8; --auth-card-border: #ffffff8c;
+ --auth-field: #f8fcffb3; --auth-line: #6b8ca654; --auth-hover: #2b83ba14;
+ --auth-primary: linear-gradient(110deg,#087f9c,#2563eb);
+ --auth-shadow: 0 24px 70px #00132b40, inset 0 1px 0 #ffffffb3, inset 0 -1px 0 #ffffff26;
+ --pf-v5-global--primary-color--100: #008eee; --pf-v5-global--link--Color: var(--auth-link);
+}
+html[data-theme="dark"] {
+ color-scheme: dark;
+ --auth-text: #edf5ff; --auth-muted: #b4c9dd; --auth-link: #70d6f0;
+ --auth-card: linear-gradient(145deg,#19344ca8,#07182e99);
+ --auth-card-fallback: #11263b; --auth-card-border: #a7d7f447;
+ --auth-field: #0b1e3294; --auth-line: #9ebcd23d; --auth-hover: #79d6ff1a;
+ --auth-shadow: 0 24px 70px #000d2580, inset 0 1px 0 #d2ecff26, inset 0 -1px 0 #8dd6ff0d;
+}
+html.login-pf, html.login-pf body#keycloak-bg { margin: 0; background: #03162f; color: var(--auth-text); }
+body#keycloak-bg {
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+ min-height: 100dvh; isolation: isolate;
+}
+body#keycloak-bg::before {
+ content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+ background: #03162f url('../img/ecosystem-scene.png') center / cover no-repeat;
+}
+.auth-visual { position: fixed; inset: 0; pointer-events: none; overflow: hidden; color: #eff6ff; }
+.auth-visual-brand { position: absolute; left: 2.6vw; top: 3.2vh; display: flex; align-items: center; gap: 14px; }
+.auth-brand-logo { width: 48px; height: 48px; object-fit: contain; flex: 0 0 48px; }
+.auth-visual-brand .auth-brand-logo { filter: invert(1); }
+.auth-visual-brand strong { display: block; font-size: clamp(17px,1.3vw,23px); letter-spacing: .5px; font-weight: 650; }
+.auth-visual-brand small { display: block; margin-top: 4px; font-size: 11px; letter-spacing: 5px; color: #b4d4f4; }
+.auth-visual-copy { position: absolute; top: 13.5vh; left: 3vw; width: 44vw; text-align: center; }
+.auth-visual-copy h2 { margin: 0; color: #f4f8ff; font-size: clamp(24px,2.5vw,44px); line-height: 1.35; font-weight: 700; letter-spacing: .5px; }
+.auth-visual-copy h2 span { color: #22d8f4; }
+.auth-visual-copy p { margin: 10px 0 0; color: #b9ddfb; font-size: clamp(13px,1.3vw,21px); letter-spacing: 2px; }
+/* Caption coordinates share the same cover geometry as the 1671 x 941 scene. */
+.auth-services {
+ position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+ width: max(100vw,177.577vh); height: max(100vh,56.3148vw);
+}
+.auth-service { position: absolute; text-shadow: 0 2px 9px #001024; }
+.auth-service strong { display: block; font-size: clamp(12px,.95vw,16px); font-weight: 600; }
+.auth-service small { display: block; margin-top: 4px; font-size: clamp(10px,.8vw,13px); color: #b4d4f4; }
+.auth-service-cert { left: 4.5%; top: 42.5%; }
+.auth-service-app { left: 28%; top: 27%; }
+.auth-service-cloud { left: 40.8%; top: 42.5%; }
+.auth-service-iot { left: 4.5%; top: 66.5%; }
+.auth-service-monitor { left: 39.5%; top: 66.5%; }
+.auth-service-message { left: 29.5%; top: 74%; }
+.auth-visual-bottom { position: absolute; bottom: 5vh; left: 2.7vw; font-size: 13px; letter-spacing: 1px; color: #cee6ff; }
+.auth-visual-bottom span { display: block; width: 28px; height: 2px; background: #8ce4ff; margin-top: 12px; }
+.auth-appearance { position: absolute; top: 26px; right: 32px; z-index: 3; display: flex; align-items: center; gap: 10px; color: #bbd6ee; font-size: 12px; }
+.auth-appearance select { font: inherit; color: #e3effc; background: #102945; border: 1px solid #456685; padding: 7px 12px; border-radius: 6px; cursor: pointer; }
+#keycloak-bg .pf-v5-c-login {
+ position: relative; box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+ width: 47%; margin-left: 50%; padding: 100px 30px 56px; min-height: 100dvh; background: none;
+}
+#keycloak-bg .pf-v5-c-login__container { display: flex; flex-direction: column; width: 100%; max-width: 480px; padding: 0; gap: 26px; }
+#kc-header { display: none; }
+#keycloak-bg .pf-v5-c-login__main {
+ width: 100%; color: var(--auth-text); background: var(--auth-card);
+ border: 1px solid var(--auth-card-border); border-radius: 20px; box-shadow: var(--auth-shadow);
+ -webkit-backdrop-filter: blur(28px) saturate(135%);
+ backdrop-filter: blur(28px) saturate(135%); overflow: hidden;
+}
+#keycloak-bg .pf-v5-c-login__main::before, #keycloak-bg .pf-v5-c-login__main::after { display: none; }
+#keycloak-bg .pf-v5-c-login__main-header { display: flex; flex-direction: column; align-items: center; padding: 30px 36px 22px; gap: 4px; border: 0; text-align: center; }
+.auth-title-row { display: flex; align-items: center; justify-content: center; gap: 14px; width: 100%; min-width: 0; }
+#keycloak-bg #kc-page-title { margin: 0; color: var(--auth-text); font-size: 30px; font-weight: 650; line-height: 1.4; }
+.auth-card-subtitle { color: var(--auth-muted); font-size: 15px; margin: 0; }
+#keycloak-bg .pf-v5-c-login__main-body { padding: 0 36px 28px; }
+#keycloak-bg .pf-v5-c-form { gap: 20px; }
+#keycloak-bg .pf-v5-c-form__label { color: var(--auth-muted); font-size: 13px; }
+#keycloak-bg .pf-v5-c-form-control { min-height: 48px; color: var(--auth-text); background: var(--auth-field); border-radius: 7px; --pf-v5-c-form-control--after--BorderBottomWidth: 1px; }
+#keycloak-bg .pf-v5-c-form-control::before { border: 1px solid var(--auth-line); border-radius: inherit; }
+#keycloak-bg .pf-v5-c-form-control::after { display: none; }
+#keycloak-bg .pf-v5-c-form-control:focus-within { box-shadow: 0 0 0 3px #00b7ff25; }
+#keycloak-bg .pf-v5-c-form-control.pf-m-error::before { border-color: #e56b75; }
+#keycloak-bg .pf-v5-c-form-control input, #keycloak-bg .pf-v5-c-form-control select { min-height: 48px; font-size: 14px; color: var(--auth-text); background: transparent; }
+#keycloak-bg .pf-v5-c-form-control input::placeholder { color: var(--auth-muted); opacity: 1; }
+#keycloak-bg .pf-v5-c-input-group { gap: 0; }
+#keycloak-bg .pf-v5-c-button { min-height: 46px; padding: 11px 16px; border-radius: 7px; font-size: 14px; font-weight: 500; transition: background-color .15s, box-shadow .15s; }
+#keycloak-bg .pf-v5-c-button::after { border-radius: inherit; }
+#keycloak-bg .pf-v5-c-button.pf-m-primary { min-height: 50px; color: #fff; background: var(--auth-primary); box-shadow: 0 6px 22px #008eff18; font-size: 16px; font-weight: 600; }
+#keycloak-bg .pf-v5-c-button.pf-m-primary:hover { background: linear-gradient(110deg,#076c87,#1d54cf); box-shadow: 0 6px 24px #008eff30; }
+#keycloak-bg .pf-v5-c-button.pf-m-secondary { color: var(--auth-text); background: var(--auth-field); --pf-v5-c-button--after--BorderColor: var(--auth-line); }
+#keycloak-bg .pf-v5-c-button.pf-m-secondary:hover { --pf-v5-c-button--after--BorderColor: #29bfff; }
+#keycloak-bg .pf-v5-c-button.pf-m-control { color: var(--auth-muted); background: var(--auth-field); border-radius: 0 7px 7px 0; }
+/* One password surface, including the native visibility toggle. Match by hook,
+   not input type: the layout must stay identical after revealing the password. */
+#keycloak-bg .pf-v5-c-input-group:has([data-password-toggle]) {
+ position: relative; gap: 0; border: 1px solid var(--auth-line); border-radius: 9px;
+ background: var(--auth-field); transition: border-color .15s, box-shadow .15s;
+}
+#keycloak-bg .pf-v5-c-input-group:has([data-password-toggle]):focus-within { border-color: #329dce; box-shadow: 0 0 0 3px #329dce20; }
+#keycloak-bg .pf-v5-c-input-group:has([data-password-toggle]):has([aria-invalid="true"]) { border-color: #e56b75; }
+#keycloak-bg .pf-v5-c-input-group:has([data-password-toggle]) .pf-v5-c-form-control { background: transparent; box-shadow: none; min-height: 46px; }
+#keycloak-bg .pf-v5-c-input-group:has([data-password-toggle]) .pf-v5-c-form-control::before { border: 0; }
+#keycloak-bg .pf-v5-c-input-group:has([data-password-toggle]) input { padding-inline-end: 54px; min-height: 46px; }
+#keycloak-bg .pf-v5-c-input-group__item:has(> [data-password-toggle]) { position: absolute; inset-inline-end: 4px; top: 4px; bottom: 4px; z-index: 2; }
+#keycloak-bg .pf-v5-c-button[data-password-toggle] {
+ display: grid; place-items: center; width: 40px; height: 100%; min-height: 0;
+ padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--auth-muted); box-shadow: none;
+}
+#keycloak-bg .pf-v5-c-button[data-password-toggle]::before, #keycloak-bg .pf-v5-c-button[data-password-toggle]::after { display: none; }
+#keycloak-bg .pf-v5-c-button[data-password-toggle]:hover { background: var(--auth-hover); color: var(--auth-link); }
+#keycloak-bg .pf-v5-c-button[data-password-toggle]:focus-visible { outline-offset: -2px; }
+#keycloak-bg .pf-v5-c-button[data-password-toggle] i { display: block; width: 19px; height: 19px; font-size: 0; }
+#keycloak-bg .pf-v5-c-button[data-password-toggle] i::before {
+ content: ""; display: block; width: 100%; height: 100%; background: currentColor;
+ mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+#keycloak-bg .pf-v5-c-button[data-password-toggle] i.fa-eye-slash::before {
+ mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 3 18 18M10.6 5.1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-3 3.7M6.5 6.5A21 21 0 0 0 2 12s3.5 7 10 7a11 11 0 0 0 5.5-1.5M9.9 9.9a3 3 0 0 0 4.2 4.2'/%3E%3C/svg%3E");
+}
+#keycloak-bg a { color: var(--auth-link); }
+#keycloak-bg :is(button,a,select):focus-visible { outline: 2px solid #28bfff; outline-offset: 3px; }
+.auth-language-control { position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; }
+#keycloak-bg #login-select-toggle {
+ appearance: none;
+ -webkit-appearance: none;
+ min-height: 32px;
+ max-width: 142px;
+ margin: 0;
+ padding: 5px 30px 5px 12px;
+ color-scheme: dark;
+ color: #dbe8f6;
+ background: #102743;
+ border: 1px solid #405d7a;
+ border-radius: 7px;
+ box-shadow: none;
+ font: inherit;
+ font-size: 12px;
+ line-height: 1.4;
+ cursor: pointer;
+}
+#keycloak-bg #login-select-toggle:hover { color: #fff; background: #142e4c; border-color: #607f9f; }
+#keycloak-bg #login-select-toggle:focus,
+#keycloak-bg #login-select-toggle:focus-visible { outline: none; border-color: #7096bc; box-shadow: 0 0 0 2px #70a8dc2e; }
+#keycloak-bg #login-select-toggle option { color: #eaf2fb; background-color: #16263b; }
+#keycloak-bg #login-select-toggle option:checked { color: #fff; background-color: #245b8f; }
+.auth-language-chevron { position: absolute; inset-inline-end: 11px; top: 50%; width: 11px; height: 7px; color: #9fb6ce; pointer-events: none; transform: translateY(-50%); }
+.auth-language-chevron svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.auth-language-control:hover .auth-language-chevron { color: #dce9f6; }
+#keycloak-bg input:focus-visible { outline: none; }
+#keycloak-bg .pf-v5-c-check__label { color: var(--auth-text); font-size: 13px; }
+#keycloak-bg .pf-v5-c-login__main-footer { padding: 0; }
+#keycloak-bg .pf-v5-c-login__main-footer:empty { display: none; }
+#keycloak-bg .pf-v5-c-login__main-footer-band { color: var(--auth-muted); background: none; padding: 24px 0 0; margin: 0; font-size: 13px; border: 0; }
+#keycloak-bg #kc-social-providers { margin-top: 20px; }
+#keycloak-bg #kc-social-providers ul { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 0; padding: 0; }
+#keycloak-bg #kc-social-providers li { padding: 0; }
+#keycloak-bg #kc-social-providers a { min-width: 0; justify-content: center; gap: 10px; }
+#keycloak-bg .pf-v5-c-login__main-footer-links-item { color: var(--auth-muted); }
+#keycloak-bg .pf-v5-c-login__main-footer-links { margin-bottom: 14px; }
+#keycloak-bg #kc-select-try-another-way-form { text-align: center; margin-top: 12px; }
+#keycloak-bg #try-another-way { min-height: auto; padding: 3px; margin: 0; color: var(--auth-muted); background: none; box-shadow: none; font-size: 12px; font-weight: 400; }
+#try-another-way::after { border: 0; }
+#keycloak-bg .pf-v5-c-alert { border-radius: 7px; }
+.auth-page-footer { text-align: center; color: #b6d6f2; font-size: 13px; letter-spacing: 1px; }
+.auth-page-footer::before { content: "◇"; margin-inline-end: 9px; color: #78d1ff; }
+#qr-login-entry { margin: 0 0 24px; }
+#qr-login-entry.is-enhanced { display: grid; grid-template-columns: 1fr 1fr; padding: 0; border: 1px solid var(--auth-line); border-radius: 7px; background: var(--auth-field); }
+#keycloak-bg #qr-login-entry button { min-height: 43px; border: 0; padding: 10px 12px; border-radius: 6px; background: transparent; color: var(--auth-muted); font: inherit; font-size: 14px; cursor: pointer; width: auto; height: auto; display: block; }
+#keycloak-bg #qr-login-entry button::after { display: none; }
+#keycloak-bg #qr-login-entry button[aria-selected="true"] { background: var(--auth-primary); color: #fff; box-shadow: 0 3px 12px #008eff20; }
+#keycloak-bg #qr-login-entry button:disabled { cursor: wait; opacity: .6; }
+#keycloak-bg #qr-login-dialog { width: 100%; max-height: none; margin: 0; padding: 0; background: none; color: var(--auth-text); border: 0; box-shadow: none; overflow: visible; }
+#keycloak-bg #qr-dialog-content { min-height: var(--qr-panel-height, 456px); text-align: center; color: var(--auth-muted); }
+#keycloak-bg #qr-login-form { gap: 10px; }
+#qr-login-form .qr-instructions, #qr-login-form .qr-match-code, #qr-status { color: var(--auth-muted); }
+#qr-login-form .qr-image-frame { background: #fff; border: 6px solid #fff; border-radius: 12px; padding: 4px; }
+#qr-login-form .qr-image-frame img { width: 216px; }
+.qr-match-code strong { color: var(--auth-text); background: var(--auth-field); }
+.qr-actions button { color: var(--auth-text); background: var(--auth-field); border-color: var(--auth-line); min-height: 36px; padding: 6px 16px; border-radius: 7px; }
+.qr-actions button:hover { color: var(--auth-link); background: var(--auth-field); border-color: #29bfff; }
+#qr-network-error, .qr-modal-error { color: #b54d09; }
+[data-theme="dark"] :is(#qr-network-error,.qr-modal-error) { color: #ffc078; }
+#keycloak-bg.qr-mode :is(#kc-select-try-another-way-form,.pf-v5-c-login__main-body > .pf-v5-c-login__main-footer) { visibility: hidden; pointer-events: none; }
+#keycloak-bg [hidden] { display: none !important; }
+/* Keep the account layout as the sizing layer. The QR panel occupies the same
+   area; loading, success and expiry never collapse the centered card. */
+#keycloak-bg .pf-v5-c-login__main-body:has(#qr-login-entry.is-enhanced) {
+ min-height: calc(var(--qr-panel-height, 456px) + 69px + 28px);
+ position: relative;
+}
+#kc-form-wrapper { position: relative; }
+#keycloak-bg.qr-mode #kc-form-login[hidden] { display: grid !important; visibility: hidden; pointer-events: none; }
+#keycloak-bg #qr-login-dialog { position: absolute; inset: 69px 0 auto; z-index: 1; }
+.qr-loading-placeholder { min-height: var(--qr-panel-height, 456px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+.qr-loading-placeholder p { font-size: 13px; color: var(--auth-muted); }
+.qr-loading-square { width: 236px; max-width: 100%; aspect-ratio: 1; border-radius: 12px; background: linear-gradient(110deg,var(--auth-field) 25%,var(--auth-hover) 45%,var(--auth-field) 65%); background-size: 250% 100%; animation: qr-shimmer 1.5s ease-in-out infinite; }
+#qr-dialog-content > *, #kc-form-login:not([hidden]) { animation: qr-panel-enter .22s ease-out both; }
+@keyframes qr-panel-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes qr-shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.qr-image-frame { position: relative; overflow: hidden; }
+#qr-state-overlay {
+ position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
+ align-items: center; gap: 14px; padding: 12px; background: #f6faffc9; color: #19324b;
+ backdrop-filter: blur(7px); border-radius: inherit;
+}
+#qr-state-overlay strong { max-width: 190px; font-size: 17px; line-height: 1.45; text-align: center; }
+#keycloak-bg #qr-state-overlay button {
+ border: 0; border-radius: 7px; padding: 9px 16px; color: #fff; background: var(--auth-primary);
+ font: inherit; font-size: 13px; cursor: pointer;
+}
+#qr-login-form.qr-is-masked .qr-image-frame img { filter: grayscale(1) blur(6px); opacity: .3; }
+#qr-login-form.qr-is-masked > .qr-match-code,
+#qr-login-form.qr-is-expired .qr-actions > .qr-refresh,
+#qr-login-form.qr-is-denied .qr-actions > .qr-refresh { display: none; }
+#qr-login-form #qr-countdown { font-size: 12px; color: var(--auth-muted); }
+#qr-time-left { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--auth-text); }
+@media (max-height: 820px) and (min-width: 901px) {
+ #keycloak-bg { --qr-panel-height: 422px; }
+ #keycloak-bg .pf-v5-c-login__main-body:has(#qr-login-entry.is-enhanced) { min-height: calc(var(--qr-panel-height) + 56px + 20px); }
+ #keycloak-bg #qr-login-dialog { top: 56px; }
+ .qr-loading-square { width: 220px; }
+ #keycloak-bg .pf-v5-c-login { padding-block: 72px 24px; }
+ #keycloak-bg .pf-v5-c-login__container { gap: 16px; }
+ #keycloak-bg .pf-v5-c-login__main-header { padding-top: 18px; padding-bottom: 16px; }
+ #keycloak-bg #kc-page-title { font-size: 27px; }
+ #keycloak-bg .pf-v5-c-login__main-body { padding-bottom: 20px; }
+ #keycloak-bg .pf-v5-c-form { gap: 12px; }
+ #keycloak-bg .pf-v5-c-form-control,
+ #keycloak-bg .pf-v5-c-form-control input,
+ #keycloak-bg .pf-v5-c-form-control select { min-height: 42px; }
+ #keycloak-bg .pf-v5-c-input-group:has([data-password-toggle]) .pf-v5-c-form-control,
+ #keycloak-bg .pf-v5-c-input-group:has([data-password-toggle]) input { min-height: 40px; }
+ #keycloak-bg .pf-v5-c-button { min-height: 40px; padding-block: 8px; }
+ #keycloak-bg .pf-v5-c-button.pf-m-primary { min-height: 44px; }
+ #keycloak-bg .pf-v5-c-login__main-footer-band { padding-top: 14px; }
+ #keycloak-bg #kc-social-providers { margin-top: 12px; }
+ #keycloak-bg #kc-select-try-another-way-form { margin-top: 6px; }
+ #keycloak-bg #qr-login-entry { margin-bottom: 16px; }
+ #keycloak-bg #qr-login-entry button { min-height: 38px; padding-block: 8px; }
+ #keycloak-bg #qr-login-form { gap: 8px; }
+ #qr-login-form .qr-image-frame img { width: 200px; }
+}
+@media (max-aspect-ratio: 3/2) and (min-width: 901px) {
+ body#keycloak-bg::before { background-size: auto 100%; background-position: 35% center; }
+ .auth-services { display: none; }
+ .auth-visual-copy { top: 18vh; left: 3vw; width: 41vw; text-align: left; }
+ .auth-visual-copy h2 span { display: block; }
+}
+@media (max-width: 1100px) {
+ #keycloak-bg .pf-v5-c-login { width: 50%; margin-left: 48%; padding-inline: 20px; }
+ #keycloak-bg .pf-v5-c-login__main-header { padding-inline: 28px; }
+ #keycloak-bg .pf-v5-c-login__main-body { padding-inline: 28px; }
+}
+@media (max-width: 900px) {
+ body#keycloak-bg::before { background-position: right center; }
+ .auth-visual { display: none; }
+ #keycloak-bg .pf-v5-c-login { margin-left: 0; width: 100%; padding: 80px 20px 30px; }
+ #kc-header { display: block; margin: 0; padding: 0; }
+ #keycloak-bg #kc-header-wrapper { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; padding: 0; font-size: 19px; color: #eff6ff !important; text-transform: none; white-space: normal; }
+ #kc-header .auth-brand-logo { width: 38px; height: 38px; flex-basis: 38px; filter: invert(1); }
+ .auth-appearance { top: 16px; right: 20px; }
+ #keycloak-bg .pf-v5-c-login__container { gap: 22px; }
+}
+@media (max-width: 400px) {
+ #keycloak-bg .pf-v5-c-login { padding-inline: 14px; }
+ #keycloak-bg .pf-v5-c-login__main-header { padding: 24px 22px 18px; }
+ .auth-title-row { gap: 10px; flex-wrap: wrap; }
+ #keycloak-bg #login-select-toggle { max-width: 126px; padding-inline-start: 10px; }
+ #keycloak-bg .pf-v5-c-login__main-body { padding: 0 22px 24px; }
+ #keycloak-bg #kc-page-title { font-size: 27px; }
+ #keycloak-bg #kc-header-wrapper { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) { #keycloak-bg *, #keycloak-bg *::before, #keycloak-bg *::after { transition: none !important; animation: none !important; } }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+ #keycloak-bg .pf-v5-c-login__main { background: var(--auth-card-fallback); }
+}

@@ -1,0 +1,2 @@
+import{jsxs as l,Fragment as n,jsx as a}from"react/jsx-runtime";import{a as s,a4 as r}from"./main-CB1rIpj1.js";const i=()=>{const{t:e}=s();return l(n,{children:[a(r,{name:"alias",label:e("name"),labelIcon:e("flowNameHelp"),rules:{required:e("required")}}),a(r,{name:"description",label:e("description"),labelIcon:e("flowDescriptionHelp"),rules:{maxLength:{value:255,message:e("maxLength",{length:255})}}})]})};export{i as N};
+//# sourceMappingURL=NameDescription-DAbNdU2_.js.map

@@ -1,0 +1,110 @@
+{
+  "node_modules/@keycloak/keycloak-account-ui/lib/VerifiableCredentials-D3r-jhjf.js": {
+    "file": "avatar-dist/assets/VerifiableCredentials-D3r-jhjf-BHWAotRv.js",
+    "name": "VerifiableCredentials-D3r-jhjf",
+    "src": "node_modules/@keycloak/keycloak-account-ui/lib/VerifiableCredentials-D3r-jhjf.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "src/main.jsx"
+    ]
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplay-Bold.woff2": {
+    "file": "avatar-dist/assets/RedHatDisplay-Bold-4NfIjmgI.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplay-Bold.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplay-BoldItalic.woff2": {
+    "file": "avatar-dist/assets/RedHatDisplay-BoldItalic-pTGisv8w.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplay-BoldItalic.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2": {
+    "file": "avatar-dist/assets/RedHatDisplay-Medium-C1BzJLzv.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplay-MediumItalic.woff2": {
+    "file": "avatar-dist/assets/RedHatDisplay-MediumItalic-ZwmBpJRm.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplay-MediumItalic.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplayVF-Italic.woff2": {
+    "file": "avatar-dist/assets/RedHatDisplayVF-Italic-CRpusWc8.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplayVF-Italic.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplayVF.woff2": {
+    "file": "avatar-dist/assets/RedHatDisplayVF-CYDHf1NI.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatDisplay/RedHatDisplayVF.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatMono/RedHatMono-Italic.woff2": {
+    "file": "avatar-dist/assets/RedHatMono-Italic-CV5TsSDj.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatMono/RedHatMono-Italic.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatMono/RedHatMono-Regular.woff2": {
+    "file": "avatar-dist/assets/RedHatMono-Regular-e08YtVYm.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatMono/RedHatMono-Regular.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatMono/RedHatMonoVF-Italic.woff2": {
+    "file": "avatar-dist/assets/RedHatMonoVF-Italic-DGQo2ogW.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatMono/RedHatMonoVF-Italic.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatMono/RedHatMonoVF.woff2": {
+    "file": "avatar-dist/assets/RedHatMonoVF-C4fMH6Vz.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatMono/RedHatMonoVF.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatText-Italic.woff2": {
+    "file": "avatar-dist/assets/RedHatText-Italic-BLl-MYdo.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatText-Italic.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatText-Medium.woff2": {
+    "file": "avatar-dist/assets/RedHatText-Medium-CFPgPIaW.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatText-Medium.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatText-MediumItalic.woff2": {
+    "file": "avatar-dist/assets/RedHatText-MediumItalic-B14GYUh6.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatText-MediumItalic.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatText-Regular.woff2": {
+    "file": "avatar-dist/assets/RedHatText-Regular-BDARZx4I.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatText-Regular.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatTextVF-Italic.woff2": {
+    "file": "avatar-dist/assets/RedHatTextVF-Italic-Dkj_WqbA.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatTextVF-Italic.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatTextVF.woff2": {
+    "file": "avatar-dist/assets/RedHatTextVF-wYvZ7prR.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/fonts/RedHatText/RedHatTextVF.woff2"
+  },
+  "node_modules/@patternfly/react-core/dist/styles/assets/pficon/pf-v5-pficon.woff2": {
+    "file": "avatar-dist/assets/pf-v5-pficon-Di6gTOT4.woff2",
+    "src": "node_modules/@patternfly/react-core/dist/styles/assets/pficon/pf-v5-pficon.woff2"
+  },
+  "src/main.jsx": {
+    "file": "avatar-dist/assets/main-CS3_J4N2.js",
+    "name": "main",
+    "src": "src/main.jsx",
+    "isEntry": true,
+    "dynamicImports": [
+      "node_modules/@keycloak/keycloak-account-ui/lib/VerifiableCredentials-D3r-jhjf.js"
+    ],
+    "css": [
+      "avatar-dist/assets/main-Di46sPJv.css"
+    ],
+    "assets": [
+      "avatar-dist/assets/RedHatDisplay-Medium-C1BzJLzv.woff2",
+      "avatar-dist/assets/RedHatDisplay-MediumItalic-ZwmBpJRm.woff2",
+      "avatar-dist/assets/RedHatDisplay-Bold-4NfIjmgI.woff2",
+      "avatar-dist/assets/RedHatDisplay-BoldItalic-pTGisv8w.woff2",
+      "avatar-dist/assets/RedHatText-Regular-BDARZx4I.woff2",
+      "avatar-dist/assets/RedHatText-Italic-BLl-MYdo.woff2",
+      "avatar-dist/assets/RedHatText-Medium-CFPgPIaW.woff2",
+      "avatar-dist/assets/RedHatText-MediumItalic-B14GYUh6.woff2",
+      "avatar-dist/assets/RedHatMono-Regular-e08YtVYm.woff2",
+      "avatar-dist/assets/RedHatMono-Italic-CV5TsSDj.woff2",
+      "avatar-dist/assets/RedHatDisplayVF-CYDHf1NI.woff2",
+      "avatar-dist/assets/RedHatDisplayVF-Italic-CRpusWc8.woff2",
+      "avatar-dist/assets/RedHatTextVF-wYvZ7prR.woff2",
+      "avatar-dist/assets/RedHatTextVF-Italic-Dkj_WqbA.woff2",
+      "avatar-dist/assets/RedHatMonoVF-C4fMH6Vz.woff2",
+      "avatar-dist/assets/RedHatMonoVF-Italic-DGQo2ogW.woff2",
+      "avatar-dist/assets/pf-v5-pficon-Di6gTOT4.woff2"
+    ]
+  }
+}

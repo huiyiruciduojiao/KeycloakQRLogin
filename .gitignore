@@ -1,4 +1,5 @@
 target/
+.local/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -38,3 +39,9 @@ build/
 .DS_Store
 # 项目排除路径
 /out/
+
+# Account theme sources build into the checked-in avatar-dist resources.
+/account-ui/node_modules/
+/account-ui/dist/
+/account-ui/test-results/
+/account-ui/playwright-report/

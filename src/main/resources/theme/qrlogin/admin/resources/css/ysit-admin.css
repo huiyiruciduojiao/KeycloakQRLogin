@@ -1,0 +1,17 @@
+/* Preserve the native Keycloak 26.7.3 / PatternFly color system. */
+body[data-page-id="admin"] .keycloak__pageheader_brand {
+  display: block;
+  width: 248px !important;
+  max-width: min(42vw, 248px);
+  height: 42px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+@media (max-width: 600px) {
+  body[data-page-id="admin"] .keycloak__pageheader_brand {
+    width: 196px !important;
+    max-width: 42vw;
+    height: 36px;
+  }
+}
